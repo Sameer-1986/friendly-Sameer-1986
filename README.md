@@ -1,4 +1,6 @@
 # Communicate using Markdown
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSameer-1986%2Ffriendly-Sameer-1986.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FSameer-1986%2Ffriendly-Sameer-1986?ref=badge_shield)
+
 
 <img src="https://octodex.github.com/images/Professortocat_v2.png" align="right" height="200px" />
 
@@ -14,3 +16,7 @@ Remember, it's self-paced so feel free to take a break! ☕️
 
 &copy; 2025 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSameer-1986%2Ffriendly-Sameer-1986.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FSameer-1986%2Ffriendly-Sameer-1986?ref=badge_large)
