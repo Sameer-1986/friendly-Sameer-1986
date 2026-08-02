@@ -1,0 +1,12 @@
+{
+  "name": "friendly-sameer-1986-checkly",
+  "private": true,
+  "scripts": {
+    "checkly:test": "checkly test",
+    "checkly:deploy": "checkly deploy"
+  },
+  "devDependencies": {
+    "checkly": "8.16.0",
+    "typescript": "^5.0.0"
+  }
+}
