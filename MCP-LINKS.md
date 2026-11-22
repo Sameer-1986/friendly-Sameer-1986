@@ -18,6 +18,7 @@
 
 ## Social links
 
+- [YouTube channel — MALAYKA TRIP TRAVELS & TORISUM](https://www.youtube.com/@mastermind-143)
 - [Facebook shared link](https://www.facebook.com/share/1FJEM1p4fU/)
 
 ## Dashboards
