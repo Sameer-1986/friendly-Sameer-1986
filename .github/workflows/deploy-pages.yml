@@ -1,0 +1,95 @@
+name: Deploy resource website
+
+on:
+  push:
+    branches: [main, website/resource-hub]
+    paths:
+      - 'site/**'
+      - '.github/workflows/deploy-pages.yml'
+  pull_request:
+    paths:
+      - 'site/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: resource-pages-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Validate static website
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Validate HTML, assets, and links
+        run: |
+          python3 - <<'PYTHON'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlparse
+          class Audit(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids, self.links, self.assets = [], [], []
+                  self.h1 = 0
+              def handle_starttag(self, tag, attrs):
+                  a = dict(attrs)
+                  if 'id' in a:
+                      self.ids.append(a['id'])
+                  if tag == 'h1':
+                      self.h1 += 1
+                  if tag == 'a' and a.get('href', '').startswith('https://'):
+                      self.links.append(a)
+                  if tag == 'script' or (tag == 'link' and a.get('rel') == 'stylesheet'):
+                      self.assets.append(a.get('src') or a.get('href'))
+          site = Path('site')
+          parser = Audit()
+          parser.feed((site / 'index.html').read_text(encoding='utf-8'))
+          assert parser.h1 == 1, 'Use exactly one main heading'
+          assert len(parser.ids) == len(set(parser.ids)), 'Duplicate HTML IDs'
+          assert parser.links, 'No external links found'
+          assert len(parser.links) == len({a['href'] for a in parser.links}), 'Duplicate links'
+          for a in parser.links:
+              parsed = urlparse(a['href'])
+              assert parsed.scheme == 'https' and parsed.netloc
+              assert not parsed.username and not parsed.password, 'Credentials in URL'
+              assert {'noopener', 'noreferrer'} <= set(a.get('rel', '').split())
+          for asset in parser.assets:
+              assert asset and not urlparse(asset).scheme, 'Only local assets are allowed'
+              assert (site / asset).is_file(), f'Missing asset: {asset}'
+          print(f'Validated HTML, {len(parser.links)} links, and {len(parser.assets)} local assets; remote destinations not contacted.')
+          PYTHON
+      - name: Validate JavaScript syntax
+        run: node --check site/app.js
+      - name: Configure Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Upload website artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+  deploy:
+    name: Publish to GitHub Pages
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
