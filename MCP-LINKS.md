@@ -11,7 +11,6 @@
 
 ## Websites & services
 
-- [Noortrip](https://www.noortrip.com/)
 - [Wegic](https://wegic.ai/)
 - [Wegic shared link](https://try.wegic.ai/qy5tqx4jafi9)
 - [Google](https://www.google.com/)
